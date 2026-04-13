@@ -183,6 +183,113 @@ app.post('/realtime', async (req, res) => {
   }
 });
 
+//曲线图接口
+app.get("/history", async (req, res) => {
+  try {
+    const now = new Date();
+    const before24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    // ===== 温度 PH =====
+    const tempList = await DeviceHistory.findAll({
+      where: { createdAt: { [Op.gt]: before24h } },
+      order: [["createdAt", "ASC"]]
+    });
+
+    const tempPh = { time: [], temp: [], ph: [] };
+
+    tempList.forEach(item => {
+      const t = new Date(item.createdAt);
+      const label = `${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
+
+      tempPh.time.push(label);
+      tempPh.temp.push(item.temp);
+      tempPh.ph.push(item.ph);
+    });
+
+    // ===== KH CA MG（来自水质 + 执行日志）=====
+    const waterList = await WaterRecord.findAll({
+      order: [["createdAt", "ASC"]],
+      limit: 30
+    });
+
+    const logList = await TaskLog.findAll({
+      order: [["createdAt", "ASC"]],
+      limit: 30
+    });
+
+    const kh = { time: [], value: [], dose: [] };
+    const ca = { time: [], value: [], dose: [] };
+    const mg = { time: [], value: [], dose: [] };
+
+    // 👉 水质值
+    waterList.forEach(item => {
+      const t = new Date(item.createdAt);
+      const label = `${t.getDate()}号`;
+
+      kh.time.push(label);
+      kh.value.push(item.kh);
+      kh.dose.push(0);
+
+      ca.time.push(label);
+      ca.value.push(item.ca);
+      ca.dose.push(0);
+
+      mg.time.push(label);
+      mg.value.push(item.mg);
+      mg.dose.push(0);
+    });
+
+    // 👉 滴定执行记录（叠加 dose）
+    logList.forEach(item => {
+      const t = new Date(item.createdAt);
+      const label = `${t.getDate()}号`;
+
+      kh.time.push(label);
+      kh.value.push(item.kh);
+      kh.dose.push(item.kh);
+
+      ca.time.push(label);
+      ca.value.push(item.ca);
+      ca.dose.push(item.ca);
+
+      mg.time.push(label);
+      mg.value.push(item.mg);
+      mg.dose.push(item.mg);
+    });
+
+    // ===== 营养盐 =====
+    const nutrients = {
+      time: [],
+      nh3: [],
+      no2: [],
+      no3: [],
+      po4: []
+    };
+
+    waterList.forEach(item => {
+      const t = new Date(item.createdAt);
+      const label = `${t.getDate()}号`;
+
+      nutrients.time.push(label);
+      nutrients.nh3.push(item.nh3);
+      nutrients.no2.push(item.no2);
+      nutrients.no3.push(item.no3);
+      nutrients.po4.push(item.po4);
+    });
+
+    res.json({
+      tempPh,
+      kh,
+      ca,
+      mg,
+      nutrients
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "history error" });
+  }
+});
 const PORT = process.env.PORT || 80;
 
 app.listen(PORT, () => {
