@@ -13,7 +13,7 @@ const sequelize = new Sequelize("nodejs_demo", MYSQL_USERNAME, MYSQL_PASSWORD, {
   port,
   dialect: "mysql",
   logging: false,
-  timezone: "+00:00"
+  timezone: "+08:00"
 });
 
 // ============================
@@ -80,7 +80,7 @@ async function init() {
   await sequelize.authenticate();
   console.log("数据库连接成功");
 
-  await sequelize.sync();
+  await sequelize.sync({ force: true });
   console.log("表已初始化");
 }
 
