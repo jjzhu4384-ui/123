@@ -88,7 +88,8 @@ app.post('/task', async (req, res) => {
       task_id: Date.now().toString(),
       kh: kh_ml,
       ca: ca_ml,
-      mg: mg_ml
+      mg: mg_ml,
+      status: 'pending' 
     });
 
     res.json({
@@ -187,7 +188,7 @@ app.post('/realtime', async (req, res) => {
 app.get("/history", async (req, res) => {
   try {
     const now = new Date();
-    const before24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const before24h = now.getTime() - 24 * 60 * 60 * 1000;
 
     // ===== 温度 PH =====
     const tempList = await DeviceHistory.findAll({
