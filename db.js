@@ -80,7 +80,7 @@ async function init() {
   await sequelize.authenticate();
   console.log("数据库连接成功");
 
-  await sequelize.sync({ force: true });
+  await sequelize.sync( );
   console.log("表已初始化");
 }
 
