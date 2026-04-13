@@ -76,13 +76,22 @@ app.post('/task', async (req, res) => {
       current_mg, target_mg
     } = req.body;
 
+    // 转数字，防止 undefined
+    const c_kh = Number(current_kh) || 0;
+    const t_kh = Number(target_kh) || 0;
+    const c_ca = Number(current_ca) || 0;
+    const t_ca = Number(target_ca) || 0;
+    const c_mg = Number(current_mg) || 0;
+    const t_mg = Number(target_mg) || 0;
+
     const delta_kh = Math.max(0, target_kh - current_kh);
     const delta_ca = Math.max(0, target_ca - current_ca);
     const delta_mg = Math.max(0, target_mg - current_mg);
 
-    const kh_ml = delta_kh / 0.036 * (TANK_VOLUME / 100);
-    const ca_ml = delta_ca * (TANK_VOLUME / 100);
-    const mg_ml = delta_mg * (TANK_VOLUME / 100);
+   // 计算滴定毫升，防止 NaN
+    const kh_ml = +(delta_kh / 0.036 * (TANK_VOLUME / 100)).toFixed(2) || 0;
+    const ca_ml = +(delta_ca * (TANK_VOLUME / 100)).toFixed(2) || 0;
+    const mg_ml = +(delta_mg * (TANK_VOLUME / 100)).toFixed(2) || 0;
 
     const task = await db.Task.create({
       task_id: Date.now().toString(),
