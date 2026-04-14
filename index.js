@@ -200,7 +200,7 @@ app.get("/history", async (req, res) => {
     const before24h = now.getTime() - 24 * 60 * 60 * 1000;
 
     // ===== 温度 PH =====
-    const tempList = await DeviceHistory.findAll({
+    const tempList = await db.DeviceHistory.findAll({
       where: { createdAt: { [Op.gt]: before24h } },
       order: [["createdAt", "ASC"]]
     });
@@ -217,7 +217,7 @@ app.get("/history", async (req, res) => {
     });
 
     // ===== KH CA MG（来自水质 + 执行日志）=====
-    const waterList = await WaterRecord.findAll({
+    const waterList = await db.WaterRecord.findAll({
       order: [["createdAt", "ASC"]],
       limit: 30
     });
