@@ -222,7 +222,7 @@ app.get("/history", async (req, res) => {
       limit: 30
     });
 
-    const logList = await TaskLog.findAll({
+    const logList = await db.TaskLog.findAll({
       order: [["createdAt", "ASC"]],
       limit: 30
     });
