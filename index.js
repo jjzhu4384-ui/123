@@ -192,6 +192,17 @@ app.post('/realtime', async (req, res) => {
       lastSaveTime = now;
 
       await db.DeviceHistory.create({ temp, ph });
+
+      // ✅ 新增：删除24小时前的数据
+      const expireTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      await db.DeviceHistory.destroy({
+        where: {
+          createdAt: {
+            [Op.lt]: expireTime
+          }
+        }
+      });
     }
 
     res.json({ code: 0 });

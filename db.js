@@ -13,7 +13,7 @@ const sequelize = new Sequelize("nodejs_demo", MYSQL_USERNAME, MYSQL_PASSWORD, {
   port,
   dialect: "mysql",
   logging: false,
-  timezone: "+08:00"
+  timezone: "+00:00"
 });
 
 // ============================
