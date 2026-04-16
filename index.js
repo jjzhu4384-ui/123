@@ -76,7 +76,6 @@ app.post('/task', async (req, res) => {
       current_mg, target_mg
     } = req.body;
 
-    // 转数字，防止 undefined
     const c_kh = Number(current_kh) || 0;
     const t_kh = Number(target_kh) || 0;
     const c_ca = Number(current_ca) || 0;
@@ -84,21 +83,29 @@ app.post('/task', async (req, res) => {
     const c_mg = Number(current_mg) || 0;
     const t_mg = Number(target_mg) || 0;
 
-    const delta_kh = Math.max(0, target_kh - current_kh);
-    const delta_ca = Math.max(0, target_ca - current_ca);
-    const delta_mg = Math.max(0, target_mg - current_mg);
+    // ✅ 用转换后的变量
+    const delta_kh = Math.max(0, t_kh - c_kh);
+    const delta_ca = Math.max(0, t_ca - c_ca);
+    const delta_mg = Math.max(0, t_mg - c_mg);
 
-   // 计算滴定毫升，防止 NaN
-    const kh_ml = +(delta_kh / 0.036 * (TANK_VOLUME / 100)).toFixed(2) || 0;
-    const ca_ml = +(delta_ca * (TANK_VOLUME / 100)).toFixed(2) || 0;
-    const mg_ml = +(delta_mg * (TANK_VOLUME / 100)).toFixed(2) || 0;
+    const kh_ml = delta_kh
+      ? +(delta_kh / 0.036 * (TANK_VOLUME / 100)).toFixed(2)
+      : 0;
+
+    const ca_ml = delta_ca
+      ? +(delta_ca * (TANK_VOLUME / 100)).toFixed(2)
+      : 0;
+
+    const mg_ml = delta_mg
+      ? +(delta_mg * (TANK_VOLUME / 100)).toFixed(2)
+      : 0;
 
     const task = await db.Task.create({
       task_id: Date.now().toString(),
       kh: kh_ml,
       ca: ca_ml,
       mg: mg_ml,
-      status: 'pending' 
+      status: 'pending'
     });
 
     res.json({
