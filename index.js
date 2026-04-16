@@ -88,6 +88,8 @@ app.post('/task', async (req, res) => {
     const delta_ca = Math.max(0, t_ca - c_ca);
     const delta_mg = Math.max(0, t_mg - c_mg);
 
+    console.log({ c_kh, t_kh, delta_kh });
+
     const kh_ml = delta_kh
       ? +(delta_kh / 0.036 * (TANK_VOLUME / 100)).toFixed(2)
       : 0;
